@@ -1,0 +1,10 @@
+.idea/
+.vscode/
+*.iml
+
+node_modules/
+data/
+
+*.xlsx
+*.mp4
+*.m4a

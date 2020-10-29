@@ -1,0 +1,20 @@
+{
+  "name": "@siubeng/bili-downloader",
+  "version": "1.0.0",
+  "description": "Bilibili video downloader library",
+  "main": "build/index.js",
+  "scripts": {
+    "build": "tsc"
+  },
+  "keywords": [],
+  "author": "Siubeng <fython@163.com>",
+  "license": "MIT",
+  "dependencies": {
+    "exceljs": "^4.2.0",
+    "node-fetch": "^3.0.0-beta.9"
+  },
+  "devDependencies": {
+    "@types/node": "^14.14.5",
+    "typescript": "^4.0.5"
+  }
+}
