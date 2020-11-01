@@ -1,12 +1,16 @@
 {
   "name": "@siubeng/bili-downloader",
-  "version": "1.0.0",
+  "version": "0.1.20201101",
   "description": "Bilibili video downloader library",
   "main": "build/index.js",
   "scripts": {
     "build": "tsc"
   },
   "keywords": [],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fython/bili-downloader.git"
+  },
   "author": "Siubeng <fython@163.com>",
   "license": "MIT",
   "dependencies": {

@@ -4,6 +4,7 @@ import {AudioQuality, VideoQuality} from './apis/constants';
 import ExcelJS from 'exceljs';
 import fs from 'fs';
 import path from 'path';
+import {escapeDirName} from './utils';
 
 const VIDEO_TASKS_COLUMNS = [
     { header: 'BV', key: 'bv', width: 10 },
@@ -18,12 +19,6 @@ const VIDEO_PART_TASKS_COLUMNS = [
     { header: 'Part', key: 'part', width: 50 },
     { header: 'Chosen', key: 'chosen', width: 6 },
 ];
-
-function escapeDirName(name: string): string {
-    return name.replace(/\//g, '_')
-        .replace(/ /g, '_')
-        .replace(/\\/g, '_');
-}
 
 export function mapToVideoParts() {
     const api = BiliDownloader.api;
@@ -41,7 +36,7 @@ export function mapToVideoParts() {
     };
 }
 
-export function mapToVideoPlayUrls(preferVideoQuality?: number, preferAudioQuality?: number) {
+export function mapToVideoPlayUrls(preferVideoQuality?: VideoQuality, preferAudioQuality?: AudioQuality) {
     const api = BiliDownloader.api;
     const videoQualityPrefer = preferVideoQuality ?? VideoQuality.$4k;
     const audioQualityPrefer = preferAudioQuality ?? AudioQuality.$192k;

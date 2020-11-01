@@ -1,7 +1,8 @@
 import { VideoAudioPair, VideoPartTask, VideoPlayUrlTask, VideoTask } from './model';
+import { AudioQuality, VideoQuality } from './apis/constants';
 import ExcelJS from 'exceljs';
 export declare function mapToVideoParts(): (source: VideoTask[]) => Promise<VideoPartTask[]>;
-export declare function mapToVideoPlayUrls(preferVideoQuality?: number, preferAudioQuality?: number): (source: VideoPartTask[]) => Promise<VideoPlayUrlTask[]>;
+export declare function mapToVideoPlayUrls(preferVideoQuality?: VideoQuality, preferAudioQuality?: AudioQuality): (source: VideoPartTask[]) => Promise<VideoPlayUrlTask[]>;
 export declare function mapVideoTasksToWorkbook(): (source: VideoTask[]) => Promise<ExcelJS.Workbook>;
 export declare function filterVideoTasks(filter: (item: VideoTask) => Boolean): (source: VideoTask[]) => Promise<VideoTask[]>;
 export declare function filterVideoTasksByWorkbook(bookPath: string): (source: VideoTask[]) => Promise<VideoTask[]>;

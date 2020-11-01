@@ -18,6 +18,7 @@ const constants_1 = require("./apis/constants");
 const exceljs_1 = __importDefault(require("exceljs"));
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
+const utils_1 = require("./utils");
 const VIDEO_TASKS_COLUMNS = [
     { header: 'BV', key: 'bv', width: 10 },
     { header: 'Title', key: 'title', width: 80 },
@@ -30,11 +31,6 @@ const VIDEO_PART_TASKS_COLUMNS = [
     { header: 'Part', key: 'part', width: 50 },
     { header: 'Chosen', key: 'chosen', width: 6 },
 ];
-function escapeDirName(name) {
-    return name.replace(/\//g, '_')
-        .replace(/ /g, '_')
-        .replace(/\\/g, '_');
-}
 function mapToVideoParts() {
     const api = index_1.BiliDownloader.api;
     return (source) => __awaiter(this, void 0, void 0, function* () {
@@ -187,12 +183,12 @@ function downloadTasks(dirPath) {
         for (const task of source) {
             const bv = task.root.root.bv;
             const title = task.root.root.title;
-            const videoPath = path_1.default.join(resolvedPath, `${bv}-${escapeDirName(title)}`);
+            const videoPath = path_1.default.join(resolvedPath, `${bv}-${utils_1.escapeDirName(title)}`);
             if (!fs_1.default.existsSync(videoPath)) {
                 fs_1.default.mkdirSync(videoPath);
             }
-            const videoFilePath = path_1.default.join(videoPath, `${escapeDirName(task.root.name)}.mp4`);
-            const audioFilePath = path_1.default.join(videoPath, `${escapeDirName(task.root.name)}.m4a`);
+            const videoFilePath = path_1.default.join(videoPath, `${utils_1.escapeDirName(task.root.name)}.mp4`);
+            const audioFilePath = path_1.default.join(videoPath, `${utils_1.escapeDirName(task.root.name)}.m4a`);
             yield index_1.BiliDownloader.downloadPlayUrl(task, videoFilePath, audioFilePath);
             pairs.push({ videoPath: videoFilePath, audioPath: audioFilePath });
         }

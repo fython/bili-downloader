@@ -1,5 +1,14 @@
 import {DEFAULT_USER_AGENT} from "./constants";
-import {IdHolder, Tag, UserVideosResult, Video, VideoPage, VideoPlayUrlInfo} from "./interfaces";
+import {
+    FavListInfo,
+    FavListVideo,
+    IdHolder,
+    Tag,
+    UserVideosResult,
+    Video,
+    VideoPage,
+    VideoPlayUrlInfo
+} from './interfaces';
 import fetch from 'node-fetch';
 
 interface UserVideosRawPage {
@@ -12,6 +21,11 @@ interface UserVideosRawPage {
         ps: number;
         count: number;
     };
+}
+
+interface FavListRawPage {
+    info: FavListInfo;
+    medias: FavListVideo[];
 }
 
 interface ApiResult<T> {
@@ -87,6 +101,18 @@ export default class BilibiliApi {
         return result;
     }
 
+    async getVideoInfo(id: IdHolder): Promise<Video> {
+        const url = "https://api.bilibili.com/x/web-interface/view?"
+            + _query(_idToQuery(id));
+        const res = await fetch(url, { headers: this.mergeHeaders() })
+            .then(res => res.json()) as ApiResult<Video>;
+        if (res.code === 0) {
+            return res.data;
+        } else {
+            throw new Error(res.message);
+        }
+    }
+
     async getVideoPagesList(id: IdHolder): Promise<VideoPage[]> {
         const url = "https://api.bilibili.com/x/player/pagelist?" + _query(_idToQuery(id));
         const res = await fetch(url, { headers: this.mergeHeaders() })
@@ -112,5 +138,29 @@ export default class BilibiliApi {
         } else {
             throw new Error(res.message);
         }
+    }
+
+    private async _getFavListVideos(mid: number, page: number, limit: number): Promise<FavListRawPage> {
+        const url = "https://api.bilibili.com/x/v3/fav/resource/list?" +
+            _query({ media_id: `${mid}`, pn: `${page}`, ps: `${limit}` });
+        if (this.debug) {
+            console.log(`fetch: GET ${url}`);
+        }
+        const res = await fetch(url, { headers: this.mergeHeaders() })
+            .then(res => res.json()) as ApiResult<FavListRawPage>;
+        return res.data;
+    }
+
+    async getFavListVideos(mid: number): Promise<FavListRawPage> {
+        const limit = 20;
+        let page = 1;
+        let data = await this._getFavListVideos(mid, page, limit);
+        let result: FavListRawPage = data;
+        while (data.info.media_count > page * limit) {
+            page += 1;
+            data = await this._getFavListVideos(mid, page, limit);
+            result.medias.push(...data.medias);
+        }
+        return result;
     }
 }

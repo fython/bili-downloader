@@ -74,6 +74,20 @@ class BilibiliApi {
             return result;
         });
     }
+    getVideoInfo(id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const url = "https://api.bilibili.com/x/web-interface/view?"
+                + _query(_idToQuery(id));
+            const res = yield node_fetch_1.default(url, { headers: this.mergeHeaders() })
+                .then(res => res.json());
+            if (res.code === 0) {
+                return res.data;
+            }
+            else {
+                throw new Error(res.message);
+            }
+        });
+    }
     getVideoPagesList(id) {
         return __awaiter(this, void 0, void 0, function* () {
             const url = "https://api.bilibili.com/x/player/pagelist?" + _query(_idToQuery(id));
@@ -102,6 +116,32 @@ class BilibiliApi {
             else {
                 throw new Error(res.message);
             }
+        });
+    }
+    _getFavListVideos(mid, page, limit) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const url = "https://api.bilibili.com/x/v3/fav/resource/list?" +
+                _query({ media_id: `${mid}`, pn: `${page}`, ps: `${limit}` });
+            if (this.debug) {
+                console.log(`fetch: GET ${url}`);
+            }
+            const res = yield node_fetch_1.default(url, { headers: this.mergeHeaders() })
+                .then(res => res.json());
+            return res.data;
+        });
+    }
+    getFavListVideos(mid) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const limit = 20;
+            let page = 1;
+            let data = yield this._getFavListVideos(mid, page, limit);
+            let result = data;
+            while (data.info.media_count > page * limit) {
+                page += 1;
+                data = yield this._getFavListVideos(mid, page, limit);
+                result.medias.push(...data.medias);
+            }
+            return result;
         });
     }
 }

@@ -93,3 +93,56 @@ export interface VideoFormatInfo {
     display_desc: string;
     superscript: string;
 }
+export interface FavListInfo {
+    id: number;
+    fid: number;
+    mid: number;
+    attr: number;
+    title: string;
+    cover: string;
+    upper: {
+        mid: number;
+        name: string;
+        face: string;
+    };
+    cover_type: number;
+    cnt_info: {
+        collect: number;
+        play: number;
+        thumb_up: number;
+        share: number;
+    };
+    type: number;
+    intro: string;
+    ctime: number;
+    mtime: number;
+    state: number;
+    fav_state: number;
+    like_state: number;
+    media_count: number;
+}
+export interface FavListVideo {
+    id: number;
+    type: number;
+    title: string;
+    cover: string;
+    intro: string;
+    page: number;
+    duration: number;
+    upper: {
+        mid: number;
+        name: string;
+        face: string;
+    };
+    attr: number;
+    cnt_info: {
+        collect: number;
+        play: number;
+        danmaku: number;
+    };
+    link: string;
+    ctime: number;
+    pubtime: number;
+    fav_time: number;
+    bvid: string;
+}

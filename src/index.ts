@@ -1,32 +1,17 @@
 import {VideoPlayUrlTask, VideoTask} from './model';
 import BilibiliApi from './apis';
+import {VideoQuality, AudioQuality} from './apis/constants';
+import {IdHolder} from "./apis/interfaces";
 import fs from 'fs';
 import fetch from 'node-fetch';
+import {bytesToMBytesText, bytesToSpeedText, percentText} from './utils';
 
-function bytesToMBytesText(n: number): string {
-    return `${(n/1024/1024).toFixed(2)}MB`;
-}
-
-function bytesToSpeedText(n: number): string {
-    if (n < 1024) {
-        return `${n}B/s`;
-    } else if (n < 1024 * 1024) {
-        return `${(n/1024).toFixed(2)}KB/s`;
-    } else {
-        return `${(n/1024/1024).toFixed(2)}MB/s`;
-    }
-}
-
-function percentText(current: number, max: number): string {
-    return `${(current/max*100).toFixed(2)}%`;
-}
-
-export interface BiliDownloaderInitOptions {
+interface BiliDownloaderInitOptions {
     cookie: string;
     debug?: boolean;
 }
 
-export class BiliDownloader {
+class BiliDownloader {
     static api: BilibiliApi = new BilibiliApi();
 
     static init(options: BiliDownloaderInitOptions): BiliDownloader {
@@ -35,12 +20,35 @@ export class BiliDownloader {
         return BiliDownloader;
     }
 
+    /**
+     * 获取某一个用户的所有视频并构建任务
+     *
+     * @param uid 用户空间 ID
+     */
     static getUserVideos(uid: number): Promise<VideoTask[]> {
         return BiliDownloader.api.getUserVideos(uid)
-            .then(page => page.videos.map(video => ({
-                bv: video.bvid,
-                title: video.title
-            } as VideoTask)));
+            .then(page => page.videos.map(video =>
+                ({ bv: video.bvid, title: video.title })
+            ));
+    }
+
+    static getVideo(id: IdHolder): Promise<VideoTask[]> {
+        return BiliDownloader.api.getVideoInfo(id)
+            .then(info => [
+                { bv: info.bvid, title: info.title },
+            ]);
+    }
+
+    /**
+     * 获取某一个收藏列表的所有视频并构建任务
+     *
+     * @param mid 收藏列表 ID
+     */
+    static getFavListVideos(mid: number): Promise<VideoTask[]> {
+        return BiliDownloader.api.getFavListVideos(mid)
+            .then(list => list.medias.map(video =>
+                ({ bv: video.bvid, title: video.title })
+            ));
     }
 
     private static async bodyStreamToOut(res: fetch.Response,
@@ -131,3 +139,10 @@ export class BiliDownloader {
         console.log(`Task[${bv}] Finished.`);
     }
 }
+
+export {
+    BiliDownloaderInitOptions,
+    BiliDownloader,
+    AudioQuality,
+    VideoQuality,
+};
