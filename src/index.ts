@@ -88,9 +88,10 @@ class BiliDownloader {
         const bv = task.root.root.bv;
         console.log(`Task[${bv}] Start downloading`);
 
-        const videoRes = await fetch(task.videoUrl[0], BiliDownloader.api.mergeHeaders({
+        const headers = BiliDownloader.api.mergeHeaders({
             'Referer': `https://www.bilibili.com/video/${bv}`,
-        }));
+        });
+        const videoRes = await fetch(task.videoUrl[0], { headers });
         if (!videoRes.ok) {
             throw new Error(`Cannot get segment file: ${task.videoUrl[0]}`);
         }
@@ -105,16 +106,14 @@ class BiliDownloader {
                 const writtenText = bytesToMBytesText(written);
                 process.stdout.write(
                     `Progress: ${writtenText} of ${videoLengthText} ` +
-                    `(${percentText(written, length)} ${bytesToSpeedText(bps)})` +
+                    `(${percentText(written, videoLength)} ${bytesToSpeedText(bps)})` +
                     '\x1B[0G'
                 );
             });
             process.stdout.write(`Finished downloading video part of ${bv} (${videoLengthText})\n`);
         }
 
-        const audioRes = await fetch(task.audioUrl[0], BiliDownloader.api.mergeHeaders({
-            'Referer': `https://www.bilibili.com/video/${bv}`,
-        }));
+        const audioRes = await fetch(task.audioUrl[0], { headers });
         if (!audioRes.ok) {
             throw new Error(`Cannot get segment file: ${task.audioUrl[0]}`);
         }
@@ -129,7 +128,7 @@ class BiliDownloader {
                 const writtenText = bytesToMBytesText(written);
                 process.stdout.write(
                     `Progress: ${writtenText} of ${audioLengthText} ` +
-                    `(${percentText(written, length)} ${bytesToSpeedText(bps)})` +
+                    `(${percentText(written, audioLength)} ${bytesToSpeedText(bps)})` +
                     '\x1B[0G'
                 );
             });

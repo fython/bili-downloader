@@ -12,10 +12,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.downloadVideoTasks = exports.downloadPartTasks = exports.downloadTasks = exports.saveWorkbook = exports.filterVideoPartTasksByWorkbook = exports.filterVideoPartTasks = exports.mapVideoPartTasksToWorkbook = exports.filterVideoTasksByWorkbook = exports.filterVideoTasks = exports.mapVideoTasksToWorkbook = exports.mapToVideoPlayUrls = exports.mapToVideoParts = void 0;
+exports.mergeVideoAndAudio = exports.downloadVideoTasks = exports.downloadPartTasks = exports.downloadTasks = exports.saveWorkbook = exports.filterVideoPartTasksByWorkbook = exports.filterVideoPartTasks = exports.mapVideoPartTasksToWorkbook = exports.filterVideoTasksByWorkbook = exports.filterVideoTasks = exports.mapVideoTasksToWorkbook = exports.mapToVideoPlayUrls = exports.mapToVideoParts = void 0;
 const index_1 = require("./index");
 const constants_1 = require("./apis/constants");
 const exceljs_1 = __importDefault(require("exceljs"));
+const fluent_ffmpeg_1 = __importDefault(require("fluent-ffmpeg"));
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
 const utils_1 = require("./utils");
@@ -112,11 +113,11 @@ function filterVideoTasksByWorkbook(bookPath) {
         const excludedTasks = [];
         for (let i = 2; i <= sheet.rowCount; i++) {
             const row = sheet.getRow(i);
-            if (row.getCell('chosen').value === '0') {
+            if (row.getCell('chosen').value == 0) {
                 excludedTasks.push(row.getCell('bv').value);
             }
         }
-        return source.filter(item => item.bv in excludedTasks);
+        return source.filter(item => excludedTasks.indexOf(item.bv) < 0);
     });
 }
 exports.filterVideoTasksByWorkbook = filterVideoTasksByWorkbook;
@@ -211,3 +212,32 @@ function downloadVideoTasks(dirPath, preferVideoQuality, preferAudioQuality) {
     });
 }
 exports.downloadVideoTasks = downloadVideoTasks;
+function mergeVideoAndAudio(chain) {
+    return (source) => __awaiter(this, void 0, void 0, function* () {
+        for (const { videoPath, audioPath } of source) {
+            const mergedVideoPath = videoPath.substring(0, videoPath.lastIndexOf('.')) +
+                '_merged.' +
+                videoPath.substr(videoPath.lastIndexOf('.') + 1);
+            if (fs_1.default.existsSync(mergedVideoPath)) {
+                console.log(`Merged file path exists: ${mergedVideoPath}`);
+                continue;
+            }
+            let cmd = fluent_ffmpeg_1.default()
+                .addInput(videoPath)
+                .addInput(audioPath)
+                .withVideoCodec('copy')
+                .withAudioCodec('copy')
+                .output(mergedVideoPath);
+            cmd = (chain === null || chain === void 0 ? void 0 : chain.call(null, cmd)) || cmd;
+            yield new Promise((resolve, reject) => {
+                cmd.on('start', (cmdLine) => console.log(`FFMpeg with cmdline: ${cmdLine}`));
+                cmd.on('progress', (progress) => console.log(`Progressing: ${progress.percent}%`));
+                cmd.on('end', () => resolve());
+                cmd.on('error', (err) => reject(err));
+                cmd.run();
+            });
+            console.log(`Finished merging video and audio to ${mergedVideoPath}`);
+        }
+    });
+}
+exports.mergeVideoAndAudio = mergeVideoAndAudio;

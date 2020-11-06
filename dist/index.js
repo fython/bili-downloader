@@ -86,9 +86,10 @@ class BiliDownloader {
         return __awaiter(this, void 0, void 0, function* () {
             const bv = task.root.root.bv;
             console.log(`Task[${bv}] Start downloading`);
-            const videoRes = yield node_fetch_1.default(task.videoUrl[0], BiliDownloader.api.mergeHeaders({
+            const headers = BiliDownloader.api.mergeHeaders({
                 'Referer': `https://www.bilibili.com/video/${bv}`,
-            }));
+            });
+            const videoRes = yield node_fetch_1.default(task.videoUrl[0], { headers });
             if (!videoRes.ok) {
                 throw new Error(`Cannot get segment file: ${task.videoUrl[0]}`);
             }
@@ -103,14 +104,12 @@ class BiliDownloader {
                 yield BiliDownloader.bodyStreamToOut(videoRes, videoOut, (written, bps) => {
                     const writtenText = utils_1.bytesToMBytesText(written);
                     process.stdout.write(`Progress: ${writtenText} of ${videoLengthText} ` +
-                        `(${utils_1.percentText(written, length)} ${utils_1.bytesToSpeedText(bps)})` +
+                        `(${utils_1.percentText(written, videoLength)} ${utils_1.bytesToSpeedText(bps)})` +
                         '\x1B[0G');
                 });
                 process.stdout.write(`Finished downloading video part of ${bv} (${videoLengthText})\n`);
             }
-            const audioRes = yield node_fetch_1.default(task.audioUrl[0], BiliDownloader.api.mergeHeaders({
-                'Referer': `https://www.bilibili.com/video/${bv}`,
-            }));
+            const audioRes = yield node_fetch_1.default(task.audioUrl[0], { headers });
             if (!audioRes.ok) {
                 throw new Error(`Cannot get segment file: ${task.audioUrl[0]}`);
             }
@@ -125,7 +124,7 @@ class BiliDownloader {
                 yield BiliDownloader.bodyStreamToOut(audioRes, audioOut, (written, bps) => {
                     const writtenText = utils_1.bytesToMBytesText(written);
                     process.stdout.write(`Progress: ${writtenText} of ${audioLengthText} ` +
-                        `(${utils_1.percentText(written, length)} ${utils_1.bytesToSpeedText(bps)})` +
+                        `(${utils_1.percentText(written, audioLength)} ${utils_1.bytesToSpeedText(bps)})` +
                         '\x1B[0G');
                 });
                 process.stdout.write(`Finished downloading audio part of ${bv} (${audioLengthText})\n`);

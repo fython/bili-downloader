@@ -2,6 +2,7 @@ import {VideoAudioPair, VideoPartTask, VideoPlayUrlTask, VideoTask} from './mode
 import {BiliDownloader} from './index';
 import {AudioQuality, VideoQuality} from './apis/constants';
 import ExcelJS from 'exceljs';
+import Ffmpeg, {FfmpegCommand} from 'fluent-ffmpeg';
 import fs from 'fs';
 import path from 'path';
 import {escapeDirName} from './utils';
@@ -101,11 +102,11 @@ export function filterVideoTasksByWorkbook(bookPath: string) {
         const excludedTasks: string[] = [];
         for (let i = 2; i <= sheet.rowCount; i++) {
             const row = sheet.getRow(i);
-            if (row.getCell('chosen').value === '0') {
+            if (row.getCell('chosen').value == 0) {
                 excludedTasks.push(row.getCell('bv').value as string);
             }
         }
-        return source.filter(item => item.bv in excludedTasks);
+        return source.filter(item => excludedTasks.indexOf(item.bv) < 0);
     };
 }
 
@@ -203,5 +204,34 @@ export function downloadVideoTasks(dirPath: string,
         return await mapToVideoParts()(source)
             .then(mapToVideoPlayUrls(preferVideoQuality, preferAudioQuality))
             .then(downloadTasks(dirPath));
+    };
+}
+
+export function mergeVideoAndAudio(chain?: (ffmpeg: FfmpegCommand) => FfmpegCommand) {
+    return async (source: VideoAudioPair[]) => {
+        for (const {videoPath, audioPath} of source) {
+            const mergedVideoPath = videoPath.substring(0, videoPath.lastIndexOf('.')) +
+                '_merged.' +
+                videoPath.substr(videoPath.lastIndexOf('.') + 1);
+            if (fs.existsSync(mergedVideoPath)) {
+                console.log(`Merged file path exists: ${mergedVideoPath}`);
+                continue;
+            }
+            let cmd = Ffmpeg()
+                .addInput(videoPath)
+                .addInput(audioPath)
+                .withVideoCodec('copy')
+                .withAudioCodec('copy')
+                .output(mergedVideoPath);
+            cmd = chain?.call(null, cmd) || cmd;
+            await new Promise((resolve, reject) => {
+                cmd.on('start', (cmdLine) => console.log(`FFMpeg with cmdline: ${cmdLine}`));
+                cmd.on('progress', (progress) => console.log(`Progressing: ${progress.percent}%`));
+                cmd.on('end', () => resolve());
+                cmd.on('error', (err) => reject(err));
+                cmd.run();
+            });
+            console.log(`Finished merging video and audio to ${mergedVideoPath}`);
+        }
     };
 }
