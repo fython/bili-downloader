@@ -61,7 +61,7 @@ class BiliDownloader {
                 }
                 let written = 0, lastWritten = 0, bps = 0;
                 const interval = 1000;
-                let bpsCalcInterval = setInterval(() => {
+                const bpsCalcInterval = setInterval(() => {
                     bps = (written - lastWritten) * (1000 / interval);
                     lastWritten = written;
                 }, interval);

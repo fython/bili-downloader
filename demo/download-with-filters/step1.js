@@ -1,9 +1,9 @@
 const {BiliDownloader, VideoQuality} = require('../../dist');
 const {
     downloadTasks,
-    mapToVideoPlayUrls,
     filterVideoTasksByWorkbook,
     mapToVideoParts,
+    mapToVideoPlayUrls,
     mergeVideoAndAudio
 } = require('../../dist/operations');
 

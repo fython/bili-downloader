@@ -1,4 +1,4 @@
-import {DEFAULT_USER_AGENT} from "./constants";
+import {DEFAULT_USER_AGENT} from './constants';
 import {
     FavListInfo,
     FavListVideo,
@@ -56,10 +56,10 @@ export default class BilibiliApi {
 
     mergeHeaders(extraHeaders?: Record<string, string>): Record<string, string> {
         const headers: Record<string, string> = {};
-        headers["User-Agent"] = this.userAgent;
-        headers["Referer"] = "https://www.bilibili.com";
+        headers['User-Agent'] = this.userAgent;
+        headers['Referer'] = 'https://www.bilibili.com';
         if (this.cookie) {
-            headers["Cookie"] = this.cookie;
+            headers['Cookie'] = this.cookie;
         }
         if (extraHeaders) {
             for (const [key, value] of Object.entries(extraHeaders)) {
@@ -70,7 +70,7 @@ export default class BilibiliApi {
     }
 
     private async _getUserVideos(mid: number, page: number, limit: number): Promise<UserVideosRawPage> {
-        const url = "https://api.bilibili.com/x/space/arc/search?" +
+        const url = 'https://api.bilibili.com/x/space/arc/search?' +
             _query({ mid: `${mid}`, pn: `${page}`, ps: `${limit}` });
         if (this.debug) {
             console.log(`fetch: GET ${url}`);
@@ -84,7 +84,7 @@ export default class BilibiliApi {
         const limit = 100;
         let page = 1;
         let data = await this._getUserVideos(mid, page, limit);
-        let result: UserVideosResult = {
+        const result: UserVideosResult = {
             tags: Object.values(data.list.tlist),
             videos: data.list.vlist
         };
@@ -102,7 +102,7 @@ export default class BilibiliApi {
     }
 
     async getVideoInfo(id: IdHolder): Promise<Video> {
-        const url = "https://api.bilibili.com/x/web-interface/view?"
+        const url = 'https://api.bilibili.com/x/web-interface/view?'
             + _query(_idToQuery(id));
         const res = await fetch(url, { headers: this.mergeHeaders() })
             .then(res => res.json()) as ApiResult<Video>;
@@ -114,7 +114,7 @@ export default class BilibiliApi {
     }
 
     async getVideoPagesList(id: IdHolder): Promise<VideoPage[]> {
-        const url = "https://api.bilibili.com/x/player/pagelist?" + _query(_idToQuery(id));
+        const url = 'https://api.bilibili.com/x/player/pagelist?' + _query(_idToQuery(id));
         const res = await fetch(url, { headers: this.mergeHeaders() })
             .then(res => res.json()) as ApiResult<VideoPage[]>;
         if (res.code === 0) {
@@ -128,7 +128,7 @@ export default class BilibiliApi {
     }
 
     async getVideoPlayUrl(id: IdHolder, cid: number): Promise<VideoPlayUrlInfo> {
-        const url = "https://api.bilibili.com/x/player/playurl?" +
+        const url = 'https://api.bilibili.com/x/player/playurl?' +
             _query({ ..._idToQuery(id),
                 cid: `${cid}`, fnval: '16', fnver: '0', fourk: '1' });
         const res = await fetch(url, { headers: this.mergeHeaders() })
@@ -141,7 +141,7 @@ export default class BilibiliApi {
     }
 
     private async _getFavListVideos(mid: number, page: number, limit: number): Promise<FavListRawPage> {
-        const url = "https://api.bilibili.com/x/v3/fav/resource/list?" +
+        const url = 'https://api.bilibili.com/x/v3/fav/resource/list?' +
             _query({ media_id: `${mid}`, pn: `${page}`, ps: `${limit}` });
         if (this.debug) {
             console.log(`fetch: GET ${url}`);
@@ -155,7 +155,7 @@ export default class BilibiliApi {
         const limit = 20;
         let page = 1;
         let data = await this._getFavListVideos(mid, page, limit);
-        let result: FavListRawPage = data;
+        const result: FavListRawPage = data;
         while (data.info.media_count > page * limit) {
             page += 1;
             data = await this._getFavListVideos(mid, page, limit);

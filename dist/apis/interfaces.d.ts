@@ -1,4 +1,4 @@
-import { AudioQuality, VideoQuality } from "./constants";
+import { AudioQuality, VideoQuality } from './constants';
 export interface IdHolder {
     av?: number;
     bv?: string;

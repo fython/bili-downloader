@@ -28,10 +28,10 @@ class BilibiliApi {
     }
     mergeHeaders(extraHeaders) {
         const headers = {};
-        headers["User-Agent"] = this.userAgent;
-        headers["Referer"] = "https://www.bilibili.com";
+        headers['User-Agent'] = this.userAgent;
+        headers['Referer'] = 'https://www.bilibili.com';
         if (this.cookie) {
-            headers["Cookie"] = this.cookie;
+            headers['Cookie'] = this.cookie;
         }
         if (extraHeaders) {
             for (const [key, value] of Object.entries(extraHeaders)) {
@@ -42,7 +42,7 @@ class BilibiliApi {
     }
     _getUserVideos(mid, page, limit) {
         return __awaiter(this, void 0, void 0, function* () {
-            const url = "https://api.bilibili.com/x/space/arc/search?" +
+            const url = 'https://api.bilibili.com/x/space/arc/search?' +
                 _query({ mid: `${mid}`, pn: `${page}`, ps: `${limit}` });
             if (this.debug) {
                 console.log(`fetch: GET ${url}`);
@@ -57,7 +57,7 @@ class BilibiliApi {
             const limit = 100;
             let page = 1;
             let data = yield this._getUserVideos(mid, page, limit);
-            let result = {
+            const result = {
                 tags: Object.values(data.list.tlist),
                 videos: data.list.vlist
             };
@@ -76,7 +76,7 @@ class BilibiliApi {
     }
     getVideoInfo(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            const url = "https://api.bilibili.com/x/web-interface/view?"
+            const url = 'https://api.bilibili.com/x/web-interface/view?'
                 + _query(_idToQuery(id));
             const res = yield node_fetch_1.default(url, { headers: this.mergeHeaders() })
                 .then(res => res.json());
@@ -90,7 +90,7 @@ class BilibiliApi {
     }
     getVideoPagesList(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            const url = "https://api.bilibili.com/x/player/pagelist?" + _query(_idToQuery(id));
+            const url = 'https://api.bilibili.com/x/player/pagelist?' + _query(_idToQuery(id));
             const res = yield node_fetch_1.default(url, { headers: this.mergeHeaders() })
                 .then(res => res.json());
             if (res.code === 0) {
@@ -106,7 +106,7 @@ class BilibiliApi {
     }
     getVideoPlayUrl(id, cid) {
         return __awaiter(this, void 0, void 0, function* () {
-            const url = "https://api.bilibili.com/x/player/playurl?" +
+            const url = 'https://api.bilibili.com/x/player/playurl?' +
                 _query(Object.assign(Object.assign({}, _idToQuery(id)), { cid: `${cid}`, fnval: '16', fnver: '0', fourk: '1' }));
             const res = yield node_fetch_1.default(url, { headers: this.mergeHeaders() })
                 .then(res => res.json());
@@ -120,7 +120,7 @@ class BilibiliApi {
     }
     _getFavListVideos(mid, page, limit) {
         return __awaiter(this, void 0, void 0, function* () {
-            const url = "https://api.bilibili.com/x/v3/fav/resource/list?" +
+            const url = 'https://api.bilibili.com/x/v3/fav/resource/list?' +
                 _query({ media_id: `${mid}`, pn: `${page}`, ps: `${limit}` });
             if (this.debug) {
                 console.log(`fetch: GET ${url}`);
@@ -135,7 +135,7 @@ class BilibiliApi {
             const limit = 20;
             let page = 1;
             let data = yield this._getFavListVideos(mid, page, limit);
-            let result = data;
+            const result = data;
             while (data.info.media_count > page * limit) {
                 page += 1;
                 data = yield this._getFavListVideos(mid, page, limit);

@@ -1,7 +1,7 @@
 import { VideoPlayUrlTask, VideoTask } from './model';
 import BilibiliApi from './apis';
 import { VideoQuality, AudioQuality } from './apis/constants';
-import { IdHolder } from "./apis/interfaces";
+import { IdHolder } from './apis/interfaces';
 interface BiliDownloaderInitOptions {
     cookie: string;
     debug?: boolean;

@@ -1,9 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AudioQuality = exports.VideoQuality = exports.DEFAULT_USER_AGENT = void 0;
-exports.DEFAULT_USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6) " +
-    "AppleWebKit/537.36 (KHTML, like Gecko) " +
-    "Chrome/85.0.4183.121 Safari/537.36";
+exports.DEFAULT_USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6) ' +
+    'AppleWebKit/537.36 (KHTML, like Gecko) ' +
+    'Chrome/85.0.4183.121 Safari/537.36';
 var VideoQuality;
 (function (VideoQuality) {
     VideoQuality[VideoQuality["$240p"] = 6] = "$240p";

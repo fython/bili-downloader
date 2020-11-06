@@ -21,7 +21,7 @@ const VIDEO_PART_TASKS_COLUMNS = [
     { header: 'Chosen', key: 'chosen', width: 6 },
 ];
 
-export function mapToVideoParts() {
+export function mapToVideoParts(): (source: VideoTask[]) => Promise<VideoPartTask[]> {
     const api = BiliDownloader.api;
     return async (source: VideoTask[]) => {
         const res: VideoPartTask[] = [];
@@ -37,7 +37,10 @@ export function mapToVideoParts() {
     };
 }
 
-export function mapToVideoPlayUrls(preferVideoQuality?: VideoQuality, preferAudioQuality?: AudioQuality) {
+export function mapToVideoPlayUrls(
+    preferVideoQuality?: VideoQuality,
+    preferAudioQuality?: AudioQuality
+): (source: VideoPartTask[]) => Promise<VideoPlayUrlTask[]> {
     const api = BiliDownloader.api;
     const videoQualityPrefer = preferVideoQuality ?? VideoQuality.$4k;
     const audioQualityPrefer = preferAudioQuality ?? AudioQuality.$192k;
@@ -71,7 +74,7 @@ export function mapToVideoPlayUrls(preferVideoQuality?: VideoQuality, preferAudi
     };
 }
 
-export function mapVideoTasksToWorkbook() {
+export function mapVideoTasksToWorkbook(): (source: VideoTask[]) => Promise<ExcelJS.Workbook> {
     return async (source: VideoTask[]) => {
         const workbook = new ExcelJS.Workbook();
         workbook.creator = 'BiliDownloader';
@@ -87,13 +90,13 @@ export function mapVideoTasksToWorkbook() {
     };
 }
 
-export function filterVideoTasks(filter: (item: VideoTask) => Boolean) {
+export function filterVideoTasks(filter: (item: VideoTask) => boolean): (source: VideoTask[]) => Promise<VideoTask[]> {
     return async (source: VideoTask[]) => {
         return source.filter(item => filter(item));
     };
 }
 
-export function filterVideoTasksByWorkbook(bookPath: string) {
+export function filterVideoTasksByWorkbook(bookPath: string): (source: VideoTask[]) => Promise<VideoTask[]> {
     return async (source: VideoTask[]) => {
         const workbook = new ExcelJS.Workbook();
         await workbook.xlsx.readFile(bookPath);
@@ -110,7 +113,7 @@ export function filterVideoTasksByWorkbook(bookPath: string) {
     };
 }
 
-export function mapVideoPartTasksToWorkbook() {
+export function mapVideoPartTasksToWorkbook(): (source: VideoPartTask[]) => Promise<ExcelJS.Workbook> {
     return async (source: VideoPartTask[]) => {
         const workbook = new ExcelJS.Workbook();
         workbook.creator = 'BiliDownloader';
@@ -128,13 +131,17 @@ export function mapVideoPartTasksToWorkbook() {
     };
 }
 
-export function filterVideoPartTasks(filter: (item: VideoPartTask) => Boolean) {
+export function filterVideoPartTasks(
+    filter: (item: VideoPartTask) => boolean
+): (source: VideoPartTask[]) => Promise<VideoPartTask[]> {
     return async (source: VideoPartTask[]) => {
         return source.filter(item => filter(item));
     };
 }
 
-export function filterVideoPartTasksByWorkbook(bookPath: string) {
+export function filterVideoPartTasksByWorkbook(
+    bookPath: string
+): (source: VideoPartTask[]) => Promise<VideoPartTask[]> {
     return async (source: VideoPartTask[]) => {
         const workbook = new ExcelJS.Workbook();
         await workbook.xlsx.readFile(bookPath);
@@ -153,7 +160,7 @@ export function filterVideoPartTasksByWorkbook(bookPath: string) {
     };
 }
 
-export function saveWorkbook(outPath: string, overwrite?: boolean) {
+export function saveWorkbook(outPath: string, overwrite?: boolean): (source: ExcelJS.Workbook) => Promise<boolean> {
     return async (source: ExcelJS.Workbook) => {
         if (!overwrite && fs.existsSync(outPath)) {
             throw new Error(`File ${outPath} exists`);
@@ -163,7 +170,7 @@ export function saveWorkbook(outPath: string, overwrite?: boolean) {
     };
 }
 
-export function downloadTasks(dirPath: string) {
+export function downloadTasks(dirPath: string): (source: VideoPlayUrlTask[]) => Promise<VideoAudioPair[]> {
     const resolvedPath = path.resolve(dirPath);
     if (!fs.existsSync(resolvedPath)) {
         throw new Error(`Directory ${resolvedPath} doesn't exist.`);
@@ -188,18 +195,22 @@ export function downloadTasks(dirPath: string) {
     };
 }
 
-export function downloadPartTasks(dirPath: string,
-                                  preferVideoQuality?: number,
-                                  preferAudioQuality?: number) {
+export function downloadPartTasks(
+    dirPath: string,
+    preferVideoQuality?: number,
+    preferAudioQuality?: number
+): (source: VideoPartTask[]) => Promise<VideoAudioPair[]> {
     return async (source: VideoPartTask[]) => {
         return await mapToVideoPlayUrls(preferVideoQuality, preferAudioQuality)(source)
             .then(downloadTasks(dirPath));
     };
 }
 
-export function downloadVideoTasks(dirPath: string,
-                                   preferVideoQuality?: number,
-                                   preferAudioQuality?: number) {
+export function downloadVideoTasks(
+    dirPath: string,
+    preferVideoQuality?: number,
+    preferAudioQuality?: number
+): (source: VideoTask[]) => Promise<VideoAudioPair[]> {
     return async (source: VideoTask[]) => {
         return await mapToVideoParts()(source)
             .then(mapToVideoPlayUrls(preferVideoQuality, preferAudioQuality))
@@ -207,7 +218,9 @@ export function downloadVideoTasks(dirPath: string,
     };
 }
 
-export function mergeVideoAndAudio(chain?: (ffmpeg: FfmpegCommand) => FfmpegCommand) {
+export function mergeVideoAndAudio(
+    chain?: (ffmpeg: FfmpegCommand) => FfmpegCommand
+): (source: VideoAudioPair[]) => Promise<void> {
     return async (source: VideoAudioPair[]) => {
         for (const {videoPath, audioPath} of source) {
             const mergedVideoPath = videoPath.substring(0, videoPath.lastIndexOf('.')) +

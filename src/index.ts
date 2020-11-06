@@ -1,7 +1,7 @@
 import {VideoPlayUrlTask, VideoTask} from './model';
 import BilibiliApi from './apis';
 import {VideoQuality, AudioQuality} from './apis/constants';
-import {IdHolder} from "./apis/interfaces";
+import {IdHolder} from './apis/interfaces';
 import fs from 'fs';
 import fetch from 'node-fetch';
 import {bytesToMBytesText, bytesToSpeedText, percentText} from './utils';
@@ -63,7 +63,7 @@ class BiliDownloader {
 
             let written = 0, lastWritten = 0, bps = 0;
             const interval = 1000;
-            let bpsCalcInterval = setInterval(() => {
+            const bpsCalcInterval = setInterval(() => {
                 bps = (written - lastWritten) * (1000 / interval);
                 lastWritten = written;
             }, interval);
@@ -84,7 +84,7 @@ class BiliDownloader {
         });
     }
 
-    static async downloadPlayUrl(task: VideoPlayUrlTask, videoOutPath: string, audioOutPath: string) {
+    static async downloadPlayUrl(task: VideoPlayUrlTask, videoOutPath: string, audioOutPath: string): Promise<void> {
         const bv = task.root.root.bv;
         console.log(`Task[${bv}] Start downloading`);
 

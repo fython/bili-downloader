@@ -1,4 +1,4 @@
-import { VideoQuality, AudioQuality } from "./apis/constants";
+import { VideoQuality, AudioQuality } from './apis/constants';
 export interface VideoTask {
     bv: string;
     title: string;
