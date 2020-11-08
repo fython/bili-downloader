@@ -17,6 +17,7 @@ npm i @siubeng/bili-downloader
 - 导出视频任务、分 P 任务到 XLSX 格式
 - 根据导出的 XLSX 过滤下载任务，Chosen 栏为 0 时跳过下载
 - 选择视频清晰度、音频清晰度进行下载完整文件（Dash）
+- 调用 FFMpeg 合并 Dash 音视频，支持调整参数（使用 [node-fluent-ffmpeg](https://github.com/fluent-ffmpeg/node-fluent-ffmpeg)）
 - [TO-DO 列表](https://github.com/fython/bili-downloader/projects/1)
 
 ## 使用样例
